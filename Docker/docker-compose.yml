@@ -37,7 +37,6 @@ services:
       - ./nginx/logs:/var/log/nginx
       - ./nginx/auth/:/etc/nginx/auth
       - ./nginx/html:/usr/share/nginx/html
-      - tssockets:/var/timesketch/
     ports:
       - 80:80
       #- 443:443
