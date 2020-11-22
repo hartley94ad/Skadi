@@ -2,7 +2,7 @@
 
 echo "System Health Checks"
 # system health checks
-declare -a services=('elasticsearch' 'postgresql' 'celery' 'neo4j' 'redis' 'kibana' 'timesketch')
+declare -a services=('elasticsearch' 'celery' 'neo4j' 'redis' 'kibana')
 # Ensure all Services are started
 for item in "${services[@]}"
 do

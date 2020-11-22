@@ -23,8 +23,6 @@ set_time_utc=${UTC_TIME:-true}
 SKADI_USER="skadi"
 SKADI_PASS="skadi"
 SKADI_USER_HOME="/home/$SKADI_USER"
-TIMESKETCH_USER="skadi"
-TIMESKETCH_PASSWORD="skadi"
 NGINX_USER="skadi"
 NGINX_PASSWORD="skadi"
 GRAFANA_USER=$NGINX_USER
@@ -126,8 +124,6 @@ change_credentials () {
   echo ""
   # Set Credentials
   SECRET_KEY=$(openssl rand -hex 32)
-  POSTGRES_USER="timesketch"
-  psql_pw=$(openssl rand -hex 32)
   neo4juser='neo4j'
 
   echo "Using random username and passwords for OS Account, TimeSketch, Nginx proxy / Grafana"
@@ -144,9 +140,6 @@ change_credentials () {
   echo "     - Username: $NGINX_USER" >> /opt/skadi_credentials
   echo "     - Password: $NGINX_PASSWORD" >> /opt/skadi_credentials
   echo "" >> /opt/skadi_credentials
-  echo "  TimeSketch Account:" >> /opt/skadi_credentials
-  echo "     - Username: $TIMESKETCH_USER" >> /opt/skadi_credentials
-  echo "     - Password: $TIMESKETCH_PASSWORD" >> /opt/skadi_credentials
 }
 
 setup_docker () {
@@ -188,22 +181,6 @@ cdqr_cylr_config () {
 
   # Installs and Configures CDQR and CyLR
   sudo -E bash /opt/Skadi/scripts/update.sh
-}
-
-timesketch_configs () {
-  echo ""
-  echo "Setting up Timesketch configs with custom credentials"
-  echo ""
-  cp /opt/Skadi/Docker/timesketch/timesketch_default.conf /opt/Skadi/Docker/timesketch/timesketch_default.conf.bak
-  # Write TS and Postgres creds to .env file
-  sudo sed -i -E "s@TIMESKETCH_USER=.*@TIMESKETCH_USER=$TIMESKETCH_USER@g" /opt/Skadi/Docker/.env
-  sudo sed -i -E "s@TIMESKETCH_PASSWORD=.*@TIMESKETCH_PASSWORD=$TIMESKETCH_PASSWORD@g" /opt/Skadi/Docker/.env
-  sudo sed -i -E "s@POSTGRES_USER=.*@POSTGRES_USER=$POSTGRES_USER@g" /opt/Skadi/Docker/.env
-  sudo sed -i -E "s@POSTGRES_PASSWORD=.*@POSTGRES_PASSWORD=$psql_pw@g" /opt/Skadi/Docker/.env
-
- # Write TimeSketch config file on host
-  sudo sed -i "s@timesketch\:d2aea7c843bf6cc049a8199ffaa5d468108878819210990f7f33c424882b52ba@$POSTGRES_USER\:$psql_pw@g" /opt/Skadi/Docker/timesketch/timesketch_default.conf
-  sudo sed -i "s@'b75b9987200f2f1b15c4dbf800214fbc420bf4a0f3f3895dcc40eb5e9ca185c2-'@'$SECRET_KEY'@g" /opt/Skadi/Docker/timesketch/timesketch_default.conf
 }
 
 proxy_grafana_auth ()  {
@@ -256,23 +233,6 @@ configure_elastic_kibana () {
   curl -X POST "http://localhost/kibana/api/kibana/settings/defaultIndex" -u $NGINX_USER:$NGINX_PASSWORD -H "Content-Type: application/json" -H "kbn-xsrf: true" -d '{"value": "06876cd0-dfc5-11e8-bc06-31e345541948"}'
 }
 
-ensure_TS_up () {
-# The TimeSketch container needs to be running before continuing and this
-# requires the other containers to be up and running too. This can take time
-# so this loop ensures all the parts are running and timesketch is responding
-# to web requests before continuing
-echo ""
-echo ""
-echo "Ensuring Timesketch is running correctly"
-echo "Press CTRL-C at any time to stop installation"
-until $(curl --output /dev/null -u $NGINX_USER:$NGINX_PASSWORD --silent --head --fail http://localhost/timesketch); do
-    echo "No response, restarting the TimeSketch container and waiting 10 seconds to try again"
-    sudo docker restart timesketch
-    sleep 10
-done
-echo "TimeSketch available. Continuing"
-}
-
 goodbye_message () {
 echo ""
 echo ""
@@ -304,7 +264,6 @@ setup_docker
 if [ $default_skadi_passwords = "false" ]
   then
     change_credentials
-    timesketch_configs
     proxy_grafana_auth
 else
     echo "Using Skadi default username and password of skadi:skadi for OS Account, TimeSketch, Nginx proxy, and Grafana"
@@ -312,5 +271,4 @@ fi
 cdqr_cylr_config
 start_docker
 configure_elastic_kibana
-ensure_TS_up
 goodbye_message

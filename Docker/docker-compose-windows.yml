@@ -7,10 +7,8 @@ networks:
 volumes:
   elasticsearchdata: {}
   neo4jdata: {}
-  pgdata: {}
   redisdata: {}
   mongodata: {}
-  tssockets: {}
   portainerdata: {}
   prometheus_data: {}
   grafana_data: {}
@@ -27,7 +25,6 @@ services:
     container_name: nginx
     depends_on:
       - yeti
-      - timesketch
       - kibana
       - cyberchef
       - portainer
@@ -40,42 +37,9 @@ services:
       - ./nginx/logs:/var/log/nginx
       - ./nginx/auth/:/etc/nginx/auth
       - ./nginx/html:/usr/share/nginx/html
-      - tssockets:/var/timesketch/
     ports:
       - 80:80
       #- 443:443
-    restart: unless-stopped
-
-  timesketch:
-    image: aorlikoski/skadi_timesketch:20190326
-    container_name: timesketch
-    depends_on:
-      - redis
-      - elasticsearch
-      - postgres
-      - neo4j
-    environment:
-      - TIMESKETCH_USER=${TIMESKETCH_USER}
-      - TIMESKETCH_PASSWORD=${TIMESKETCH_PASSWORD}
-    networks:
-      - backend
-    volumes:
-      - ./timesketch/timesketch_default.conf:/etc/timesketch.conf
-      - tssockets:/var/timesketch/
-    restart: unless-stopped
-
-  postgres:
-    image: postgres:11
-    container_name: postgres
-    networks:
-      - backend
-    ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
   redis:
