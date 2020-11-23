@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set the version of CDQR docker
-cdqr_version=${CDQR_VERSION:-"5.1.0.1"}
+cdqr_version=${CDQR_VERSION:-"20191226"}
 
 # Set the installation branch
 install_branch=${INSTALL_BRANCH:-"master"}
