@@ -266,7 +266,7 @@ if [ $default_skadi_passwords = "false" ]
     change_credentials
     proxy_grafana_auth
 else
-    echo "Using Skadi default username and password of skadi:skadi for OS Account, TimeSketch, Nginx proxy, and Grafana"
+    echo "Using Skadi default username and password of skadi:skadi for OS Account, Nginx proxy, and Grafana"
 fi
 cdqr_cylr_config
 start_docker
