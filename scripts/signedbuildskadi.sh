@@ -128,8 +128,6 @@ change_credentials () {
 
   echo "Using random username and passwords for OS Account, Nginx proxy / Grafana"
   echo "Writing all credentials to /opt/skadi_credentials"
-  TIMESKETCH_USER="skadi_$(openssl rand -hex 3)"
-  TIMESKETCH_PASSWORD=$(openssl rand -hex 32)
   NGINX_USER="skadi_$(openssl rand -hex 3)"
   NGINX_PASSWORD=$(openssl rand -hex 32)
   GRAFANA_USER=$NGINX_USER
