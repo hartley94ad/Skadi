@@ -126,7 +126,7 @@ change_credentials () {
   SECRET_KEY=$(openssl rand -hex 32)
   neo4juser='neo4j'
 
-  echo "Using random username and passwords for OS Account, TimeSketch, Nginx proxy / Grafana"
+  echo "Using random username and passwords for OS Account, Nginx proxy / Grafana"
   echo "Writing all credentials to /opt/skadi_credentials"
   TIMESKETCH_USER="skadi_$(openssl rand -hex 3)"
   TIMESKETCH_PASSWORD=$(openssl rand -hex 32)
